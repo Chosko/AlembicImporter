@@ -15,5 +15,6 @@ namespace UTJ.Alembic
         [SerializeField] public bool treatVertexExtraDataAsStatics = false;
         [SerializeField] public bool cacheSamples = false;
         [SerializeField] public bool use32BitsIndexBuffer = false;
+        [SerializeField, Tooltip ("Leave at -1 to use default frame rate")] public float forceFrameRate = -1f;
     }
 }

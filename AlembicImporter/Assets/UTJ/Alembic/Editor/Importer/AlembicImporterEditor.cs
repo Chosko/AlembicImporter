@@ -54,13 +54,14 @@ namespace UTJ.Alembic
             EditorGUILayout.PropertyField(serializedObject.FindProperty("scaleFactor"));
 
             EditorGUILayout.Separator();
+            EditorGUILayout.PropertyField (serializedObject.FindProperty ("streamSettings.forceFrameRate"));
             var abcStartTime = serializedObject.FindProperty("AbcStartTime");
             var abcEndTime = serializedObject.FindProperty("AbcEndTime");
             var abcFrameCount = serializedObject.FindProperty("AbcFrameCount");
             var startFrame = serializedObject.FindProperty("startFrame");
             var endFrame = serializedObject.FindProperty("endFrame");
+            var frameRate = serializedObject.FindProperty ("frameRate");
             var frameLength =  (abcFrameCount.intValue == 1) ? 0 : (abcEndTime.floatValue - abcStartTime.floatValue) / (abcFrameCount.intValue-1);
-            var frameRate = (abcFrameCount.intValue == 1) ? 0 : (int)(1.0f/ frameLength);
 
             float startFrameVal = startFrame.intValue;
             float endFrameVal = endFrame.intValue;
@@ -87,13 +88,13 @@ namespace UTJ.Alembic
                 {
                     if (newEndTime < startTime) newEndTime = endTime;
                     if (newEndTime > abcEndTime.floatValue) newEndTime = abcEndTime.floatValue;
-                    endFrameVal = (float)Math.Round((newEndTime - abcStartTime.floatValue) * frameRate);
+                    endFrameVal = (float)Math.Round((newEndTime - abcStartTime.floatValue) * frameRate.floatValue);
                 }
                 if (startTime != newStartTime)
                 {
                     if (newStartTime > endTime) newStartTime = startTime;
                     if (newStartTime < abcStartTime.floatValue) newStartTime = abcStartTime.floatValue;
-                    startFrameVal = (float)Math.Round((newStartTime - abcStartTime.floatValue) * frameRate);
+                    startFrameVal = (float)Math.Round((newStartTime - abcStartTime.floatValue) * frameRate.floatValue);
                 }
                 startFrame.intValue = (int)startFrameVal;
                 endFrame.intValue = (int)endFrameVal;
@@ -108,7 +109,7 @@ namespace UTJ.Alembic
             style.alignment = TextAnchor.LowerRight;
             if (!endFrame.hasMultipleDifferentValues && !startFrame.hasMultipleDifferentValues && !abcFrameCount.hasMultipleDifferentValues)
             {
-                EditorGUILayout.LabelField(new GUIContent(duration.ToString("0.000") +"s at " + frameRate + "fps (" + (frameCount+1) + " frames)"),style);
+                EditorGUILayout.LabelField(new GUIContent(duration.ToString("0.000") +"s at " + frameRate.floatValue + "fps (" + (frameCount+1) + " frames)"),style);
                 EditorGUILayout.LabelField(new GUIContent("frame " + startFrameVal.ToString("0") + " to " + endFrameVal.ToString("0")),style);
             }
             else

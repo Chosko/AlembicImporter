@@ -20,7 +20,7 @@ namespace UTJ.Alembic
             var minFrame = targetStreamDesc.minFrame;
             var maxFrame = targetStreamDesc.maxFrame;
             var frameLength = targetStreamDesc.FrameLength;
-            var frameRate = frameLength==0.0f ? 0.0f : 1.0f / frameLength;
+            var frameRate = frameLength == 0.0f ? 0.0f : 1.0f / frameLength;
             var hasVaryingTopology= false;
             var hasAcyclicFramerate = false;
             var multipleFramerates = false;

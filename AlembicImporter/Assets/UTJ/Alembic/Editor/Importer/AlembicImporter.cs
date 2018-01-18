@@ -75,6 +75,7 @@ namespace UTJ.Alembic
         [SerializeField] public float AbcStartTime;
         [SerializeField] public float AbcEndTime;
         [SerializeField] public int AbcFrameCount;
+        [SerializeField] public float frameRate;
         [SerializeField] public string importWarning;
         [SerializeField] public List<string> varyingTopologyMeshNames = new List<string>();
         [SerializeField] public List<string> splittingMeshNames = new List<string>();
@@ -106,18 +107,43 @@ namespace UTJ.Alembic
             using (var abcStream = new AlembicStream(go, streamDescriptor))
             {
                 abcStream.AbcLoad();
-                AbcStartTime = abcStream.AbcStartTime;
-                AbcEndTime = abcStream.AbcEndTime;
-                AbcFrameCount = abcStream.AbcFrameCount;
+                
+                if(streamSettings.forceFrameRate <= 0)
+                {
+                    AbcStartTime = abcStream.AbcStartTime;
+                    AbcEndTime = abcStream.AbcEndTime;
+                    AbcFrameCount = abcStream.AbcFrameCount;
 
-                startFrame = startFrame < 0 ? 0 : startFrame;
-                endFrame = endFrame > AbcFrameCount-1 ? AbcFrameCount-1 : endFrame;
+                    startFrame = startFrame < 0 ? 0 : startFrame;
+                    endFrame = endFrame > AbcFrameCount-1 ? AbcFrameCount-1 : endFrame;
 
-                streamDescriptor.minFrame = startFrame;
-                streamDescriptor.maxFrame = endFrame;
-                streamDescriptor.abcFrameCount = AbcFrameCount;
-                streamDescriptor.abcDuration = AbcEndTime - AbcStartTime;
-                streamDescriptor.abcStartTime = AbcStartTime;
+                    streamDescriptor.minFrame = startFrame;
+                    streamDescriptor.maxFrame = endFrame;
+                    streamDescriptor.abcFrameCount = AbcFrameCount;
+                    streamDescriptor.abcDuration = AbcEndTime - AbcStartTime;
+                    streamDescriptor.abcStartTime = AbcStartTime;
+                    streamDescriptor.abcFrameRate = streamDescriptor.abcFrameCount / streamDescriptor.abcDuration;
+                    frameRate = streamDescriptor.abcFrameRate;
+                }
+                else
+                {
+                    float frameDuration = 1.0f / streamSettings.forceFrameRate;
+                    float totalDuration = abcStream.AbcFrameCount * frameDuration;
+                    AbcFrameCount = abcStream.AbcFrameCount;
+                    AbcStartTime = abcStream.AbcStartTime;
+                    AbcEndTime = AbcStartTime + totalDuration;
+
+                    startFrame = startFrame < 0 ? 0 : startFrame;
+                    endFrame = endFrame > AbcFrameCount - 1 ? AbcFrameCount - 1 : endFrame;
+
+                    streamDescriptor.minFrame = startFrame;
+                    streamDescriptor.maxFrame = endFrame;
+                    streamDescriptor.abcFrameCount = AbcFrameCount;
+                    streamDescriptor.abcDuration = totalDuration;
+                    streamDescriptor.abcStartTime = AbcStartTime;
+                    streamDescriptor.abcFrameRate = streamSettings.forceFrameRate;
+                    frameRate = streamDescriptor.abcFrameRate;
+                }
 
                 var streamPlayer = go.AddComponent<AlembicStreamPlayer>();
                 streamPlayer.streamDescriptor = streamDescriptor;

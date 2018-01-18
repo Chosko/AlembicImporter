@@ -8,15 +8,19 @@ namespace UTJ.Alembic
     {
         public AlembicStreamPlayer streamPlayer { get; set; }
 
-        public override void ProcessFrame(Playable playable, FrameData info, object playerData)
+#if UNITY_2017_3_OR_NEWER
+        public override void ProcessFrame (Playable playable, UnityEngine.Playables.FrameData info, object playerData)
+#else
+        public override void ProcessFrame (Playable playable, FrameData info, object playerData)
+#endif
         {
-            base.ProcessFrame(playable, info, playerData);
+            base.ProcessFrame (playable, info, playerData);
 
             if (streamPlayer == null)
                 return;
 
             var duration = streamPlayer.streamDescriptor.Duration;
-            var time = (float)playable.GetTime();
+            var time = (float) playable.GetTime ();
             streamPlayer.currentTime = time == duration ? duration : time % duration;
         }
     }

@@ -14,6 +14,7 @@ namespace UTJ.Alembic
         [SerializeField] public float abcDuration = 0.0f;
         [SerializeField] public float abcStartTime = 0.0f;
         [SerializeField] public int abcFrameCount = 1;
+        [SerializeField] public float abcFrameRate = 0.0f;
 
         public float Duration
         {
@@ -27,8 +28,9 @@ namespace UTJ.Alembic
         {
             get
             {
-               if (abcFrameCount == 1) return 0;
-               return abcDuration / (abcFrameCount-1);
+                if (abcFrameCount == 1)
+                    return 0;
+                return abcDuration / (abcFrameCount - 1);
             }
         }
     }
