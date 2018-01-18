@@ -10,6 +10,7 @@ namespace UTJ.Alembic
         [SerializeField] public float currentTime;
         [SerializeField] public int startFrame;
         [SerializeField] public int endFrame;
+        [SerializeField] public float frameRate = 25.0f;
         [SerializeField] public float vertexMotionScale = 1.0f;
         [SerializeField] public bool interpolateSamples = true;
         float m_LastUpdateTime;

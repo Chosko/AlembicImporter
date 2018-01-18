@@ -59,8 +59,10 @@ namespace UTJ.Alembic
             var abcFrameCount = serializedObject.FindProperty("AbcFrameCount");
             var startFrame = serializedObject.FindProperty("startFrame");
             var endFrame = serializedObject.FindProperty("endFrame");
-            var frameLength =  (abcFrameCount.intValue == 1) ? 0 : (abcEndTime.floatValue - abcStartTime.floatValue) / (abcFrameCount.intValue-1);
-            var frameRate = (abcFrameCount.intValue == 1) ? 0 : (int)(1.0f/ frameLength);
+            var frameRate = serializedObject.FindProperty("frameRate");
+            var frameLength = 1.0f / (frameRate.floatValue);
+            //var frameLength =  (abcFrameCount.intValue == 1) ? 0 : (abcEndTime.floatValue - abcStartTime.floatValue) / (abcFrameCount.intValue-1);
+            //var frameRate = (abcFrameCount.intValue == 1) ? 0 : (int)(1.0f/ frameLength);
 
             float startFrameVal = startFrame.intValue;
             float endFrameVal = endFrame.intValue;
@@ -81,40 +83,61 @@ namespace UTJ.Alembic
             EditorGUI.showMixedValue = endFrame.hasMultipleDifferentValues;
             var newEndTime = EditorGUILayout.FloatField(new GUIContent(" ","End time"),endTime,GUILayout.MinWidth(90.0f));
             EditorGUI.showMixedValue = false;
+            EditorGUILayout.EndHorizontal();
+
+            var newStartFrame = EditorGUILayout.IntField(new GUIContent("Start frame", "Start frame"), startFrame.intValue, GUILayout.MinWidth(90.0f));
+            EditorGUI.showMixedValue = endFrame.hasMultipleDifferentValues;
+            var newEndFrame = EditorGUILayout.IntField(new GUIContent("End frame", "End frame"), endFrame.intValue, GUILayout.MinWidth(90.0f));
+            EditorGUI.showMixedValue = false;
+
+            frameRate.floatValue = EditorGUILayout.FloatField(new GUIContent(" ", "fps"), frameRate.floatValue, GUILayout.MinWidth(90.0f));
+
             if (EditorGUI.EndChangeCheck())
             {
                 if (endTime != newEndTime)
                 {
                     if (newEndTime < startTime) newEndTime = endTime;
                     if (newEndTime > abcEndTime.floatValue) newEndTime = abcEndTime.floatValue;
-                    endFrameVal = (float)Math.Round((newEndTime - abcStartTime.floatValue) * frameRate);
+                    endFrameVal = (float)Math.Round((newEndTime - abcStartTime.floatValue) * frameRate.floatValue);
                 }
                 if (startTime != newStartTime)
                 {
                     if (newStartTime > endTime) newStartTime = startTime;
                     if (newStartTime < abcStartTime.floatValue) newStartTime = abcStartTime.floatValue;
-                    startFrameVal = (float)Math.Round((newStartTime - abcStartTime.floatValue) * frameRate);
+                    startFrameVal = (float)Math.Round((newStartTime - abcStartTime.floatValue) * frameRate.floatValue);
                 }
+
                 startFrame.intValue = (int)startFrameVal;
                 endFrame.intValue = (int)endFrameVal;
             }
             EditorGUI.EndDisabledGroup();
-            EditorGUILayout.EndHorizontal();
 
-            int frameCount = (int)(endFrameVal - startFrameVal);
+            startFrameVal = startFrame.intValue;
+            endFrameVal = endFrame.intValue;
+            frameLength = 0.0f;
+            if (frameRate.floatValue > 0)
+            {
+                frameLength = 1.0f / (frameRate.floatValue);
+                //Debug.Log("Frame length: " + frameLength);
+            }
+
+            int frameCount = (int)(endFrameVal - startFrameVal + 1);
             float duration = frameCount * frameLength;
 
             GUIStyle style = new GUIStyle();
             style.alignment = TextAnchor.LowerRight;
             if (!endFrame.hasMultipleDifferentValues && !startFrame.hasMultipleDifferentValues && !abcFrameCount.hasMultipleDifferentValues)
             {
-                EditorGUILayout.LabelField(new GUIContent(duration.ToString("0.000") +"s at " + frameRate + "fps (" + (frameCount+1) + " frames)"),style);
+                EditorGUILayout.LabelField(new GUIContent(duration.ToString("0.000") +"s at " + frameRate.floatValue + "fps (" + frameCount + " frames)"),style);
                 EditorGUILayout.LabelField(new GUIContent("frame " + startFrameVal.ToString("0") + " to " + endFrameVal.ToString("0")),style);
             }
             else
             {
                 EditorGUILayout.LabelField(new GUIContent("the selected assets have different time ranges or framerates"), style);
             }
+
+            
+
             EditorGUILayout.Separator();
             
             EditorGUILayout.PropertyField(serializedObject.FindProperty("streamSettings.cacheSamples"));

@@ -74,6 +74,7 @@ namespace UTJ.Alembic
         [SerializeField] public int endFrame = int.MaxValue;        
         [SerializeField] public float AbcStartTime;
         [SerializeField] public float AbcEndTime;
+        [SerializeField] public float frameRate = 25.0f;
         [SerializeField] public int AbcFrameCount;
         [SerializeField] public string importWarning;
         [SerializeField] public List<string> varyingTopologyMeshNames = new List<string>();

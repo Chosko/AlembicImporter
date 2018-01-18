@@ -15,12 +15,14 @@ namespace UTJ.Alembic
             SerializedProperty currentTime = serializedObject.FindProperty("currentTime");
             SerializedProperty endFrame = serializedObject.FindProperty("endFrame");
             SerializedProperty startFrame = serializedObject.FindProperty("startFrame");
-            
+            SerializedProperty frameRate = serializedObject.FindProperty("frameRate");
+
             var targetStreamDesc = (target as AlembicStreamPlayer).streamDescriptor;
             var minFrame = targetStreamDesc.minFrame;
             var maxFrame = targetStreamDesc.maxFrame;
-            var frameLength = targetStreamDesc.FrameLength;
-            var frameRate = frameLength==0.0f ? 0.0f : 1.0f / frameLength;
+            var frameLength = targetStreamDesc.abcFrameCount / frameRate.floatValue;
+            //var frameLength = targetStreamDesc.FrameLength;
+            //var frameRate = frameLength==0.0f ? 0.0f : 1.0f / frameLength;
             var hasVaryingTopology= false;
             var hasAcyclicFramerate = false;
             var multipleFramerates = false;
@@ -82,8 +84,8 @@ namespace UTJ.Alembic
             EditorGUI.showMixedValue = false;
             if (EditorGUI.EndChangeCheck())
             {
-                endFrameVal = (float)Math.Round((newEndTime - targetStreamDesc.abcStartTime) * frameRate);
-                startFrameVal = (float)Math.Round((newStartTime - targetStreamDesc.abcStartTime) * frameRate);
+                endFrameVal = (float)Math.Round((newEndTime - targetStreamDesc.abcStartTime) * frameRate.floatValue);
+                startFrameVal = (float)Math.Round((newStartTime - targetStreamDesc.abcStartTime) * frameRate.floatValue);
 
                 startFrame.intValue = (int)startFrameVal;
                 endFrame.intValue = (int)endFrameVal;    
@@ -91,6 +93,18 @@ namespace UTJ.Alembic
 
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
+
+            frameRate.floatValue = EditorGUILayout.FloatField(new GUIContent("frameRate", "Frame rate"), frameRate.floatValue);
+
+            startFrameVal = startFrame.intValue;
+            endFrameVal = endFrame.intValue;
+            frameLength = 0.0f;
+            if (frameRate.floatValue > 0)
+            {
+                frameLength = 1.0f / (frameRate.floatValue);
+                //Debug.Log("Frame length: " + frameLength);
+            }
+
             EditorGUIUtility.labelWidth = 0.0f;
 
             GUIStyle style = new GUIStyle();
@@ -99,7 +113,7 @@ namespace UTJ.Alembic
             {
                 int numFrames = (int)(endFrameVal - startFrameVal);
                 float duration = numFrames * frameLength;
-                EditorGUILayout.LabelField(new GUIContent(duration.ToString("0.000") + "s at " + frameRate + "fps (" + (numFrames+1) + " frames).", "Frame rate"), style);
+                EditorGUILayout.LabelField(new GUIContent(duration.ToString("0.000") + "s at " + frameRate.floatValue + "fps (" + (numFrames+1) + " frames).", "Frame rate"), style);
             }
             else
             {

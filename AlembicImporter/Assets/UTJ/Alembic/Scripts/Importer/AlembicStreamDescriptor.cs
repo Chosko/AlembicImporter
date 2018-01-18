@@ -11,24 +11,35 @@ namespace UTJ.Alembic
         [SerializeField] public bool hasAcyclicFramerate = false;
         [SerializeField] public int minFrame = 0;
         [SerializeField] public int maxFrame = 0;
+        [SerializeField] public float frameRate = 25.0f;
         [SerializeField] public float abcDuration = 0.0f;
         [SerializeField] public float abcStartTime = 0.0f;
         [SerializeField] public int abcFrameCount = 1;
 
         public float Duration
         {
+            //get
+            //{
+            //   return abcFrameCount * FrameLength;
+            //}
+
             get
             {
-               return abcFrameCount * FrameLength;
+                return (abcFrameCount - 1) / frameRate;
             }
         }
 
         public float FrameLength
         {
+            //get
+            //{
+            //   if (abcFrameCount == 1) return 0;
+            //   return abcDuration / (abcFrameCount-1);
+            //}
             get
             {
-               if (abcFrameCount == 1) return 0;
-               return abcDuration / (abcFrameCount-1);
+                if (frameRate == 0) return 1.0f;
+                return 1.0f / frameRate;
             }
         }
     }
